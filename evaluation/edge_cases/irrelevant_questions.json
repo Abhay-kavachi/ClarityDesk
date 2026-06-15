@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is the capital of France?",
+    "expected_answer": "I couldn't find this in your uploaded notes. The question may be answered in documents that haven't been uploaded yet.",
+    "should_find": false,
+    "source_file": null
+  },
+  {
+    "question": "How do you make a chocolate cake?",
+    "expected_answer": "I couldn't find this in your uploaded notes. The question may be answered in documents that haven't been uploaded yet.",
+    "should_find": false,
+    "source_file": null
+  }
+]

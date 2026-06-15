@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is the grant deadline?",
+    "expected_answer": "April 1",
+    "should_find": true,
+    "source_file": "sample_meeting_notes.txt"
+  },
+  {
+    "question": "What did we discuss about hiring?",
+    "expected_answer": "I couldn't find this in your uploaded notes.",
+    "should_find": false,
+    "source_file": null
+  }
+]

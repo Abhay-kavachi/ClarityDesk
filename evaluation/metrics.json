@@ -1,0 +1,8 @@
+{
+  "action_item_accuracy": 100,
+  "citation_accuracy": 100,
+  "hallucination_failures": 0,
+  "avg_response_time": 0.62,
+  "retrieval_recall_10": 100,
+  "reranking_improvement": 100
+}
