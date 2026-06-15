@@ -1,6 +1,4 @@
-# ClarityDesk MVP Walkthrough
-
-The ClarityDesk MVP is fully scaffolded and built, successfully meeting all requirements from the design brief and final architectural specifications. 
+# ClarityDesk
 
 ## What We Built
 
