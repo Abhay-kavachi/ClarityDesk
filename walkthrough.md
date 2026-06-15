@@ -30,7 +30,7 @@ A clean SPA using the "organized desk" aesthetic (`#0F6E56` primary, Inter font)
 - **Email Summarizer (`SummarizePanel.tsx`)**: Extracts summaries, urgency, and action items.
 - **Q&A Assistant (`AskPanel.tsx`)**: Handles document upload and semantic questioning with citation rendering.
 
-### 4. Advanced Retrieval Pipeline (Phase 4.5)
+### 4. Advanced Retrieval Pipeline
 The Q&A layer is implemented as a multi-stage `retrieval → reranking → generation` pipeline for maximum precision:
 1. **Embedding**: `all-MiniLM-L6-v2` encodes the user question.
 2. **Cosine Similarity (Recall@10)**: Fast vector search retrieves the top 10 broad candidates.
