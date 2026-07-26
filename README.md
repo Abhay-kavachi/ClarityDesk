@@ -68,3 +68,14 @@ To run the automated tests and verify the RAG pipeline, you can use the built-in
 python ../evaluation/eval.py
 ```
 *(Tip: Set `LLM_PROVIDER=mock` in your `.env` to run the entire test suite instantly and for free without using any API credits).*
+
+---
+
+## Engineering & Operational Documentation
+
+ClarityDesk is built with production-grade engineering discipline, including explicit Architecture Decision Records (ADRs), threat modeling, and structured JSON observability:
+- [ADR-001: In-Memory Vector Store vs. External Vector DB](file:///docs/ADR/ADR-001-in-memory-rag-vs-vectordb.md)
+- [ADR-002: Model-Agnostic LLM Provider Abstraction Layer](file:///docs/ADR/ADR-002-llm-provider-abstraction.md)
+- [Security Policy & Threat Model](file:///docs/security.md)
+- [System Latency & Benchmark Table](file:///docs/benchmarks.md)
+

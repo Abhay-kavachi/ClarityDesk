@@ -1,27 +1,79 @@
-from fastapi import FastAPI
+import os
+import uuid
+import time
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from api.process_notes import router as notes_router
 from api.summarize_email import router as email_router
 from api.qa import router as qa_router
+from core.errors import ClarityDeskError
+from core.logging import setup_structured_logging, request_id_ctx
 
 load_dotenv()
 
-app = FastAPI(title="ClarityDesk API")
+logger = setup_structured_logging()
 
-# Configure CORS for local development
+app = FastAPI(
+    title="ClarityDesk API",
+    description="Nonprofit Operations Copilot — AI-powered meeting notes, email summarization, and grounded Q&A.",
+    version="1.0.0"
+)
+
+# Configure CORS for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all for demo
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(notes_router, prefix="/api")
-app.include_router(email_router, prefix="/api")
-app.include_router(qa_router, prefix="/api")
+@app.middleware("http")
+async def request_correlation_middleware(request: Request, call_next):
+    """
+    Assigns X-Request-ID for operational traceability and emits structured JSON logs.
+    """
+    req_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    token = request_id_ctx.set(req_id)
+    start_time = time.time()
+    
+    logger.info(f"Incoming request: {request.method} {request.url.path}")
+    
+    try:
+        response = await call_next(request)
+        latency_ms = round((time.time() - start_time) * 1000, 2)
+        response.headers["X-Request-ID"] = req_id
+        logger.info(f"Completed request: {request.method} {request.url.path} | Status: {response.status_code} | Latency: {latency_ms}ms")
+        return response
+    finally:
+        request_id_ctx.reset(token)
 
-@app.get("/health")
+@app.exception_handler(ClarityDeskError)
+async def claritydesk_error_handler(request: Request, exc: ClarityDeskError):
+    """Centralized domain error handler returning predictable error taxonomies."""
+    logger.error(f"Domain error occurred: [{exc.error_code}] {exc.message}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": {
+                "code": exc.error_code,
+                "message": exc.message,
+                "request_id": request_id_ctx.get()
+            }
+        }
+    )
+
+app.include_router(notes_router, prefix="/api", tags=["Notes Processing"])
+app.include_router(email_router, prefix="/api", tags=["Email Summarization"])
+app.include_router(qa_router, prefix="/api", tags=["Grounded Q&A (RAG)"])
+
+@app.get("/health", tags=["Operational"])
 def health_check():
-    return {"status": "ok"}
+    """Operational health check endpoint for monitoring and container probes."""
+    return {
+        "status": "ok",
+        "provider": os.getenv("LLM_PROVIDER", "mock"),
+        "version": app.version
+    }

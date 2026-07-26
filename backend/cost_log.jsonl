@@ -10,3 +10,7 @@
 {"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T16:33:03.595264"}
 {"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T16:33:13.539498"}
 {"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T16:33:13.590816"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:56:10.494238"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:56:10.499271"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:56:20.124594"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:56:20.187380"}
