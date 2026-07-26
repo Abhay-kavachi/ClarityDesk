@@ -1,6 +1,7 @@
 import os
 import uuid
 import time
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,10 +16,31 @@ load_dotenv()
 
 logger = setup_structured_logging()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Startup configuration validation and graceful shutdown lifecycle handler.
+    Fails fast if invalid provider configuration is detected.
+    """
+    provider_name = os.getenv("LLM_PROVIDER", "mock").lower()
+    valid_providers = {"mock", "gemini", "anthropic"}
+    if provider_name not in valid_providers:
+        raise RuntimeError(f"Fatal configuration error: Invalid LLM_PROVIDER '{provider_name}'. Must be one of: {valid_providers}")
+        
+    if provider_name == "gemini" and not os.getenv("GEMINI_API_KEY"):
+        logger.warning("Startup warning: LLM_PROVIDER='gemini' but GEMINI_API_KEY is missing from environment.")
+    elif provider_name == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
+        logger.warning("Startup warning: LLM_PROVIDER='anthropic' but ANTHROPIC_API_KEY is missing from environment.")
+        
+    logger.info(f"ClarityDesk API initialized successfully [Provider: {provider_name.upper()}]")
+    yield
+    logger.info("ClarityDesk API initiating graceful shutdown...")
+
 app = FastAPI(
     title="ClarityDesk API",
     description="Nonprofit Operations Copilot — AI-powered meeting notes, email summarization, and grounded Q&A.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS for development
@@ -69,11 +91,19 @@ app.include_router(notes_router, prefix="/api", tags=["Notes Processing"])
 app.include_router(email_router, prefix="/api", tags=["Email Summarization"])
 app.include_router(qa_router, prefix="/api", tags=["Grounded Q&A (RAG)"])
 
+# Kubernetes / Operational Probes
 @app.get("/health", tags=["Operational"])
-def health_check():
-    """Operational health check endpoint for monitoring and container probes."""
+@app.get("/live", tags=["Operational"])
+def liveness_probe():
+    """Liveness probe for container orchestration."""
+    return {"status": "ok", "version": app.version}
+
+@app.get("/ready", tags=["Operational"])
+def readiness_probe():
+    """Readiness probe verifying active provider configuration."""
+    provider = os.getenv("LLM_PROVIDER", "mock")
     return {
-        "status": "ok",
-        "provider": os.getenv("LLM_PROVIDER", "mock"),
+        "status": "ready",
+        "provider": provider,
         "version": app.version
     }

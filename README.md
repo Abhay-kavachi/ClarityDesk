@@ -69,7 +69,16 @@ python ../evaluation/eval.py
 ```
 *(Tip: Set `LLM_PROVIDER=mock` in your `.env` to run the entire test suite instantly and for free without using any API credits).*
 
+### 4. Docker & Container Deployment
+
+To launch the backend API in an isolated container with Kubernetes health probes (`/live` and `/ready`) enabled:
+```bash
+docker-compose up --build
+```
+This requires zero local Python or virtualenv configuration and starts the API on port 8000.
+
 ---
+
 
 ## Engineering & Operational Documentation
 
