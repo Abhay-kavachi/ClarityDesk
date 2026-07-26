@@ -18,3 +18,17 @@
 {"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:58:47.033757"}
 {"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:58:56.217889"}
 {"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T17:58:56.265411"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:32.711002"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:32.720665"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:49.256999"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:49.262030"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:58.170032"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:42:58.232733"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:30.133493"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:30.147048"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:45.617004"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:45.622068"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:54.153011"}
+{"endpoint": "/api/ask", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:44:54.216131"}
+{"endpoint": "/api/process-notes", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:56:14.676491"}
+{"endpoint": "/api/summarize-email", "tokensUsed": 100, "estimatedCost": 0.0, "timestamp": "2026-07-26T18:56:14.693416"}
