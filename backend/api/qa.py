@@ -1,13 +1,14 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
-from pydantic import BaseModel
 import json
-from datetime import datetime
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from models.qa import QAResult
 from prompts.qa import QA_PROMPT
-from services.llm_provider import get_llm_provider
+from pydantic import BaseModel
 from rag.chunking import process_document
 from rag.embeddings import generate_embeddings_batch
-from rag.retrieval import store_chunks, retrieve_context, clear_store
+from rag.retrieval import clear_store, retrieve_context, store_chunks
+from services.llm_provider import get_llm_provider
 
 router = APIRouter()
 llm_service = get_llm_provider()
@@ -37,7 +38,7 @@ async def upload_document(file: UploadFile = File(...)):
         
         return {"message": f"Successfully processed {file.filename}", "chunks": len(chunks)}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @router.post("/ask", response_model=dict)
 async def ask_question(request: AskRequest):
@@ -76,7 +77,7 @@ async def ask_question(request: AskRequest):
             "endpoint": "/api/ask",
             "tokensUsed": usage["tokensUsed"],
             "estimatedCost": round(usage["estimatedCost"], 6),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
         with open("cost_log.jsonl", "a") as f:
             f.write(json.dumps(log_entry) + "\n")
@@ -84,7 +85,7 @@ async def ask_question(request: AskRequest):
         return validated_result.model_dump()
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @router.post("/clear-documents")
 async def clear_documents():

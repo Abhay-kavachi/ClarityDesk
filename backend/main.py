@@ -1,16 +1,17 @@
 import os
-import uuid
 import time
+import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+
 from api.process_notes import router as notes_router
-from api.summarize_email import router as email_router
 from api.qa import router as qa_router
+from api.summarize_email import router as email_router
 from core.errors import ClarityDeskError
-from core.logging import setup_structured_logging, request_id_ctx
+from core.logging import request_id_ctx, setup_structured_logging
+from dotenv import load_dotenv
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 load_dotenv()
 

@@ -1,12 +1,13 @@
+import json
 import os
 import sys
-import json
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 # Add backend to path so we can import the FastAPI app and RAG logic
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 from rag.retrieval import get_top_k_cosine, retrieve_context
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 from fastapi.testclient import TestClient
@@ -19,7 +20,7 @@ METRICS_FILE = os.path.join(EVAL_DIR, 'metrics.json')
 
 def load_metrics():
     if os.path.exists(METRICS_FILE):
-        with open(METRICS_FILE, 'r') as f:
+        with open(METRICS_FILE) as f:
             return json.load(f)
     return {
         "action_item_accuracy": 0,
@@ -34,7 +35,7 @@ def save_metrics(metrics):
         json.dump(metrics, f, indent=2)
         
     # Save timestamped report
-    timestamp = datetime.now().strftime('%Y_%m_%d_%H%M%S')
+    timestamp = datetime.now(UTC).strftime('%Y_%m_%d_%H%M%S')
     report_file = os.path.join(EVAL_DIR, 'reports', f'eval_{timestamp}.json')
     with open(report_file, 'w') as f:
         json.dump(metrics, f, indent=2)
@@ -43,7 +44,7 @@ def save_metrics(metrics):
 def evaluate_notes_processor():
     print("Evaluating Phase 1: Notes Processor...")
     
-    with open(os.path.join(EVAL_DIR, 'sample_meeting_notes.txt'), 'r') as f:
+    with open(os.path.join(EVAL_DIR, 'sample_meeting_notes.txt')) as f:
         notes_content = f.read()
 
     start_time = time.time()
@@ -94,7 +95,7 @@ def evaluate_notes_processor():
 def evaluate_email_summarizer():
     print("\nEvaluating Phase 2: Email Summarizer...")
     
-    with open(os.path.join(EVAL_DIR, 'sample_email.txt'), 'r') as f:
+    with open(os.path.join(EVAL_DIR, 'sample_email.txt')) as f:
         email_content = f.read()
 
     start_time = time.time()

@@ -30,3 +30,10 @@ venv/
 node_modules/
 .next/
 out/
+
+# Testing & Linting cache
+.coverage
+.coverage.*
+.pytest_cache/
+.ruff_cache/
+*.jsonl

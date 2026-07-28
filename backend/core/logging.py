@@ -4,13 +4,12 @@ Provides request correlation IDs (X-Request-ID) for operational traceability.
 """
 import json
 import logging
-import time
-from datetime import datetime
-from typing import Any, Dict, Optional
 from contextvars import ContextVar
+from datetime import UTC, datetime
+from typing import Any
 
 # Context variable to hold the correlation/request ID across async tasks
-request_id_ctx: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
+request_id_ctx: ContextVar[str | None] = ContextVar("request_id", default=None)
 
 class StructuredJsonFormatter(logging.Formatter):
     """
@@ -18,8 +17,8 @@ class StructuredJsonFormatter(logging.Formatter):
     logger name, message, and request_id if available.
     """
     def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        log_entry: dict[str, Any] = {
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),

@@ -1,8 +1,9 @@
+
 from pydantic import BaseModel
-from typing import Optional
+
 
 class QAResult(BaseModel):
     answer: str
-    source_citation: Optional[str] = None
-    matched_text: Optional[str] = None
+    source_citation: str | None = None
+    matched_text: str | None = None
     found: bool

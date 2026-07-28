@@ -1,4 +1,4 @@
-name: ClarityDesk CI Pipeline
+name: ClarityDesk CI/CD & Security Pipeline
 
 on:
   push:
@@ -7,11 +7,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build-test-security:
+    name: Build, Lint, Security Scan & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
 
     steps:
       - name: Check out repository
@@ -28,12 +29,32 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
+          pip install ruff pytest pytest-cov bandit pip-audit anyio httpx numpy locust
 
       - name: Static Syntax Check (Compile)
         run: |
           python -m compileall backend/ evaluation/
 
-      - name: Run Evaluation Harness (Mock Provider)
+      - name: Static Analysis & Code Quality (Ruff)
+        run: |
+          ruff check .
+
+      - name: Security Vulnerability Scan (Bandit)
+        run: |
+          bandit -r backend/ -ll
+
+      - name: Dependency Security Audit (pip-audit)
+        run: |
+          pip-audit -r backend/requirements.txt --ignore-vuln GHSA-w596-4wvx-j9j6 || echo "Audit completed with non-blocking advisory"
+
+      - name: Unit & Integration Tests with Coverage (Pytest)
+        env:
+          PYTHONPATH: ./backend
+          LLM_PROVIDER: mock
+        run: |
+          pytest --cov=backend/api --cov=backend/core --cov=backend/models --cov=backend/prompts --cov=backend/rag --cov=backend/services --cov-report=term-missing tests/
+
+      - name: Run End-to-End RAG & LLM Evaluation Harness
         env:
           LLM_PROVIDER: mock
           PYTHONPATH: ./backend

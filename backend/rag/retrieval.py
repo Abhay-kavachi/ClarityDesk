@@ -1,20 +1,20 @@
-from typing import List, Dict, Any
+from typing import Any
+
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from rag.embeddings import generate_embedding
 from rag.reranker import cross_encoder_rerank
+from sklearn.metrics.pairwise import cosine_similarity
 
 # In-memory store: list of dicts: {"text": str, "embedding": list[float], "metadata": dict}
 vector_store = []
 
-def store_chunks(chunks: List[Dict[str, Any]]):
+def store_chunks(chunks: list[dict[str, Any]]):
     """
     Chunks should already have 'text', 'metadata', and 'embedding' keys.
     """
-    global vector_store
     vector_store.extend(chunks)
 
-def get_top_k_cosine(question: str, k: int = 10) -> List[Dict[str, Any]]:
+def get_top_k_cosine(question: str, k: int = 10) -> list[dict[str, Any]]:
     if not vector_store:
         return []
         
@@ -40,7 +40,7 @@ def get_top_k_cosine(question: str, k: int = 10) -> List[Dict[str, Any]]:
         
     return results
 
-def retrieve_context(question: str) -> List[Dict[str, Any]]:
+def retrieve_context(question: str) -> list[dict[str, Any]]:
     # 1. Cosine Similarity Search (Top 10)
     candidates = get_top_k_cosine(question, k=10)
     
@@ -53,5 +53,4 @@ def retrieve_context(question: str) -> List[Dict[str, Any]]:
     return reranked[:3]
 
 def clear_store():
-    global vector_store
-    vector_store = []
+    vector_store.clear()

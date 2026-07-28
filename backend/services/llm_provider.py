@@ -1,8 +1,9 @@
-import os
 import json
 import logging
+import os
 from abc import ABC, abstractmethod
-from typing import TypeVar, Type, Any
+from typing import TypeVar
+
 from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -11,12 +12,11 @@ T = TypeVar('T', bound=BaseModel)
 
 class LLMProvider(ABC):
     @abstractmethod
-    def generate_structured(self, prompt: str, schema: Type[T], max_retries: int = 1) -> tuple[T, dict]:
+    def generate_structured(self, prompt: str, schema: type[T], max_retries: int = 1) -> tuple[T, dict]:
         """
         Generates a structured response matching the Pydantic schema.
         Returns a tuple of (parsed_model, usage_metrics).
         """
-        pass
 
 class AnthropicProvider(LLMProvider):
     def __init__(self):
@@ -29,12 +29,12 @@ class AnthropicProvider(LLMProvider):
 
     def _extract_json(self, text: str) -> str:
         if "```json" in text:
-            return text.split("```json")[1].split("```")[0].strip()
+            return text.split("```json")[1].split("```", maxsplit=1)[0].strip()
         elif "```" in text:
-            return text.split("```")[1].split("```")[0].strip()
+            return text.split("```")[1].split("```", maxsplit=1)[0].strip()
         return text.strip()
 
-    def generate_structured(self, prompt: str, schema: Type[T], max_retries: int = 1) -> tuple[T, dict]:
+    def generate_structured(self, prompt: str, schema: type[T], max_retries: int = 1) -> tuple[T, dict]:
         system_prompt = "You are a helpful assistant. Always output valid JSON strictly conforming to the requested schema. Do not include any other text."
         
         for attempt in range(max_retries + 1):
@@ -63,10 +63,10 @@ class AnthropicProvider(LLMProvider):
                     "output_tokens": output_tokens
                 }
             except (json.JSONDecodeError, ValidationError) as e:
-                logger.error(f"Anthropic attempt {attempt + 1} failed: {e}")
+                logger.warning(f"Anthropic attempt {attempt + 1} failed: {e}")
                 if attempt == max_retries:
-                    raise e
-                prompt += f"\n\nERROR: The previous response failed validation. Please fix the following error and return only valid JSON:\n{str(e)}"
+                    raise
+                prompt += f"\n\nERROR: The previous response failed validation. Please fix the following error and return only valid JSON:\n{e!s}"
                 
         raise RuntimeError("Unexpected failure in AnthropicProvider")
 
@@ -79,7 +79,7 @@ class GeminiProvider(LLMProvider):
         self.model = "gemini-2.0-flash"
         self.types = types
 
-    def generate_structured(self, prompt: str, schema: Type[T], max_retries: int = 1) -> tuple[T, dict]:
+    def generate_structured(self, prompt: str, schema: type[T], max_retries: int = 1) -> tuple[T, dict]:
         system_prompt = "You are a helpful assistant. Always output valid JSON strictly conforming to the requested schema. Do not include any other text."
         
         for attempt in range(max_retries + 1):
@@ -116,16 +116,16 @@ class GeminiProvider(LLMProvider):
                 }
                 
             except (json.JSONDecodeError, ValidationError) as e:
-                logger.error(f"Gemini attempt {attempt + 1} failed: {e}")
+                logger.warning(f"Gemini attempt {attempt + 1} failed: {e}")
                 if attempt == max_retries:
-                    raise e
-                prompt += f"\n\nERROR: The previous response failed validation. Please fix the following error and return only valid JSON:\n{str(e)}"
+                    raise
+                prompt += f"\n\nERROR: The previous response failed validation. Please fix the following error and return only valid JSON:\n{e!s}"
                 
         raise RuntimeError("Unexpected failure in GeminiProvider")
 
 
 class MockProvider(LLMProvider):
-    def generate_structured(self, prompt: str, schema: Type[T], max_retries: int = 1) -> tuple[T, dict]:
+    def generate_structured(self, prompt: str, schema: type[T], max_retries: int = 1) -> tuple[T, dict]:
         """
         Returns hardcoded mock data matching the requested schema.
         This allows the pipeline to be tested end-to-end without any API keys.

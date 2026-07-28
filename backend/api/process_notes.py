@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 import json
-from datetime import datetime
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, HTTPException
 from models.notes import NotesProcessingResult
 from prompts.notes import NOTES_PROCESSOR_PROMPT
+from pydantic import BaseModel
 from services.llm_provider import get_llm_provider
 
 router = APIRouter()
@@ -29,7 +30,7 @@ async def process_notes(request: ProcessNotesRequest):
             "endpoint": "/api/process-notes",
             "tokensUsed": usage["tokensUsed"],
             "estimatedCost": round(usage["estimatedCost"], 6),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
         
         # In a real app, we might write this to a DB or logger
@@ -39,4 +40,4 @@ async def process_notes(request: ProcessNotesRequest):
         return validated_result.model_dump()
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

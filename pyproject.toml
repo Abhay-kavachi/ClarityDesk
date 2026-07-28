@@ -1,0 +1,23 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "PL", "TRY", "RUF"]
+ignore = [
+    "B008",     # Do not perform function call `File`/`Depends` in argument defaults (FastAPI standard)
+    "BLE001",   # Catching Exception at top-level FastAPI routes to return 500 error JSON
+    "TRY003",   # Avoid specifying long messages outside the exception class
+    "PLR0913",  # Too many arguments in function call
+    "ASYNC230", # Async functions opening files for simple logging
+    "E402",     # Module level import not at top of file (needed for sys.path modifications in eval)
+    "PLR2004",  # Magic value used in comparison (normal in test assertions)
+    "E501",     # Line too long (normal for docstrings/prompts)
+    "PLC0415",  # Import inside function (normal in pytest monkeypatch/fixtures)
+    "S101",     # Use of assert detected (normal in tests)
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

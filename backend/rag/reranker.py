@@ -1,5 +1,6 @@
 from sentence_transformers import CrossEncoder
 
+
 class RerankerModel:
     _instance = None
     

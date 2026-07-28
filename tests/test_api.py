@@ -1,5 +1,5 @@
 import os
-import pytest
+
 from fastapi.testclient import TestClient
 
 # Ensure mock provider is used for tests
@@ -72,3 +72,45 @@ def test_qa_endpoint_without_docs():
     data = response.json()
     assert "answer" in data
     assert data["found"] is False
+
+def test_qa_endpoint_with_docs_and_clear_documents():
+    # 1. Upload a document
+    doc_bytes = b"Jose will reach out to the Hartley Foundation by this Friday to confirm the April 1 grant submission deadline."
+    upload_resp = client.post(
+        "/api/documents",
+        files={"file": ("hartley_grant.txt", doc_bytes, "text/plain")}
+    )
+    assert upload_resp.status_code == 200
+    upload_data = upload_resp.json()
+    assert "chunks" in upload_data
+    assert upload_data["chunks"] >= 1
+
+    # 2. Ask a question that matches the document
+    ask_resp = client.post(
+        "/api/ask",
+        json={"question": "When is the grant deadline?"}
+    )
+    assert ask_resp.status_code == 200
+    ask_data = ask_resp.json()
+    assert ask_data["found"] is True
+    assert "April 1" in ask_data["answer"]
+
+    # 3. Clear documents
+    clear_resp = client.post("/api/clear-documents")
+    assert clear_resp.status_code == 200
+    assert clear_resp.json()["message"] == "Store cleared"
+
+def test_domain_error_classes():
+    from core.errors import (
+        ClarityDeskError,
+        DocumentProcessingError,
+        EmbeddingError,
+        ProviderTimeoutError,
+        ProviderUnavailableError,
+        RetrievalError,
+    )
+    assert isinstance(RetrievalError("test"), ClarityDeskError)
+    assert isinstance(EmbeddingError("test"), ClarityDeskError)
+    assert isinstance(ProviderTimeoutError("anthropic", "test"), ClarityDeskError)
+    assert isinstance(ProviderUnavailableError("gemini", "test"), ClarityDeskError)
+    assert isinstance(DocumentProcessingError("file.pdf", "test"), ClarityDeskError)

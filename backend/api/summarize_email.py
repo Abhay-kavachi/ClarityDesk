@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 import json
-from datetime import datetime
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, HTTPException
 from models.email import EmailSummarizerResult
 from prompts.email import EMAIL_SUMMARIZER_PROMPT
+from pydantic import BaseModel
 from services.llm_provider import get_llm_provider
 
 router = APIRouter()
@@ -29,7 +30,7 @@ async def summarize_email(request: SummarizeEmailRequest):
             "endpoint": "/api/summarize-email",
             "tokensUsed": usage["tokensUsed"],
             "estimatedCost": round(usage["estimatedCost"], 6),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
         
         with open("cost_log.jsonl", "a") as f:
@@ -38,4 +39,4 @@ async def summarize_email(request: SummarizeEmailRequest):
         return validated_result.model_dump()
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

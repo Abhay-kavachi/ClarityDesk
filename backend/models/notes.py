@@ -1,16 +1,18 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+
 
 class ActionItem(BaseModel):
     task: str
     owner: str = Field(description="Person responsible. Use 'Unassigned' if not mentioned.")
-    deadline: Optional[str] = Field(description="Deadline if mentioned, otherwise null")
+    deadline: str | None = Field(description="Deadline if mentioned, otherwise null")
 
 class NotesProcessingResult(BaseModel):
     meeting_title: str
-    meeting_date: Optional[str]
+    meeting_date: str | None
     summary: str
-    decisions: List[str]
-    action_items: List[ActionItem]
+    decisions: list[str]
+    action_items: list[ActionItem]
     confidence: Literal["high", "medium", "low"]
-    confidence_note: Optional[str] = None
+    confidence_note: str | None = None

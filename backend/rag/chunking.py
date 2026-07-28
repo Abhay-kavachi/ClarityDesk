@@ -1,6 +1,8 @@
 import io
-import pdfplumber
+
 import docx
+import pdfplumber
+
 
 def extract_text_from_pdf(file_bytes: bytes) -> list[dict]:
     chunks = []
