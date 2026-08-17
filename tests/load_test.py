@@ -13,13 +13,14 @@ import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from statistics import mean, median
+from statistics import mean, median, quantiles
 
-import numpy as np
 from fastapi.testclient import TestClient
 
-# Add backend directory to Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
+# Add backend directory to Python path before importing application modules.
+BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
 
 from main import app
 
@@ -51,7 +52,10 @@ def worker_notes_request(req_id: int) -> float:
 
 def run_benchmark(concurrency: int = 25, total_requests: int = 100) -> dict[str, float]:
     """Runs a multi-threaded benchmark against the endpoints and returns latency metrics."""
-    print(f"\n[LOAD TEST] Launching Load Benchmark: {total_requests} requests (Concurrency: {concurrency})...")
+    print(
+        f"\n[LOAD TEST] Launching Load Benchmark: "
+        f"{total_requests} requests (Concurrency: {concurrency})..."
+    )
     latencies: list[float] = []
 
     start_bench = time.perf_counter()
@@ -70,9 +74,10 @@ def run_benchmark(concurrency: int = 25, total_requests: int = 100) -> dict[str,
     total_time = time.perf_counter() - start_bench
     rps = total_requests / total_time
 
-    p50 = float(np.percentile(latencies, 50))
-    p95 = float(np.percentile(latencies, 95))
-    p99 = float(np.percentile(latencies, 99))
+    p50 = float(median(latencies))
+    percentile_values = quantiles(latencies, n=100, method="inclusive")
+    p95 = float(percentile_values[94])
+    p99 = float(percentile_values[98])
     avg_lat = float(mean(latencies))
 
     print("-" * 65)
@@ -86,7 +91,7 @@ def run_benchmark(concurrency: int = 25, total_requests: int = 100) -> dict[str,
     print(f"p50 Latency              : {p50 * 1000:.2f} ms")
     print(f"p95 Latency              : {p95 * 1000:.2f} ms")
     print(f"p99 Latency              : {p99 * 1000:.2f} ms")
-    print(f"Error Rate               : 0.00 %")
+    print("Error Rate               : 0.00 %")
     print("-" * 65)
 
     return {
